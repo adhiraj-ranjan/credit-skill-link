@@ -7,8 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { PieChart, Pie, ResponsiveContainer, Cell, Tooltip, Legend } from 'recharts';
-import { GraduationCap, User, Award, BookOpen, Trophy, FileText, Edit, LogOut } from 'lucide-react';
-import { StudentProfile, CreditScoreResponse } from '@/types';
+import { GraduationCap, User, Award, BookOpen, Trophy, FileText, Edit, LogOut, CalendarIcon } from 'lucide-react';
+import { StudentProfile, CreditScoreResponse, HackathonDetail } from '@/types';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -20,6 +20,21 @@ const Profile = () => {
   // Chart colors
   const COLORS = ['#3B82F6', '#1E40AF', '#BFDBFE', '#60A5FA', '#93C5FD'];
 
+  // Format date to readable string
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (e) {
+      console.error("Date formatting error:", e);
+      return dateString;
+    }
+  };
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!user) {
@@ -29,6 +44,7 @@ const Profile = () => {
 
       try {
         setLoading(true);
+        console.log('Fetching profile for user:', user.id);
         
         // Fetch profile data from Supabase - using imported supabase client
         const { data, error } = await supabase
@@ -37,45 +53,61 @@ const Profile = () => {
           .eq('id', user.id)
           .single();
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching profile:', error);
+          throw error;
+        }
         
         if (data) {
+          console.log('Profile data received:', data);
+          
           // Transform DB data to our StudentProfile type
           const profileData: StudentProfile = {
             id: data.id,
-            fullName: data.full_name,
-            collegeName: data.college_name,
-            course: data.course,
-            degree: data.degree,
-            address: data.address,
-            hackathonParticipation: data.hackathon_participation,
-            hackathonWins: data.hackathon_wins,
-            cgpa: data.cgpa,
-            degreeCompleted: data.degree_completed,
+            fullName: data.full_name || '',
+            collegeName: data.college_name || '',
+            course: data.course || '',
+            degree: data.degree || '',
+            address: data.address || '',
+            hackathonParticipation: data.hackathon_participation || 0,
+            hackathonWins: data.hackathon_wins || 0,
+            hackathonDetails: data.hackathon_details || [],
+            cgpa: data.cgpa || 0,
+            degreeCompleted: data.degree_completed || false,
             certifications: data.certifications || [],
             achievements: data.achievements || [],
             researchPapers: data.research_papers || [],
-            profileImage: data.profile_image
+            profileImage: data.profile_image || ''
           };
           
           setProfile(profileData);
+          console.log('Profile transformed:', profileData);
           
           // Fetch credit score
-          const studentId = parseInt(user.id, 36) % 10000; // Convert UUID to a numeric ID
-          const scoreResponse = await fetch(`https://solid-space-fishstick-w5v55x4ggxqf9w5w-8000.app.github.dev/get-score/${studentId}`);
-          
-          if (!scoreResponse.ok) {
-            throw new Error('Failed to fetch credit score');
+          try {
+            const studentId = parseInt(user.id, 36) % 10000; // Convert UUID to a numeric ID
+            console.log('Fetching credit score for student ID:', studentId);
+            const scoreResponse = await fetch(`https://solid-space-fishstick-w5v55x4ggxqf9w5w-8000.app.github.dev/get-score/${studentId}`);
+            
+            if (!scoreResponse.ok) {
+              console.error('Failed to fetch credit score:', await scoreResponse.text());
+              throw new Error('Failed to fetch credit score');
+            }
+            
+            const scoreData = await scoreResponse.json();
+            console.log('Credit score data:', scoreData);
+            setCreditScore(scoreData);
+          } catch (scoreError) {
+            console.error('Error fetching credit score:', scoreError);
+            toast.error('Could not load credit score. Please try again later.');
           }
-          
-          const scoreData = await scoreResponse.json();
-          setCreditScore(scoreData);
         } else {
           // No profile found, redirect to setup
+          console.log('No profile found, redirecting to setup');
           navigate('/profile-setup');
         }
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Error in profile fetching:', error);
         toast.error('Failed to load profile. Please try again.');
       } finally {
         setLoading(false);
@@ -215,15 +247,15 @@ const Profile = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Certifications</span>
-                        <span className="font-medium">{profile.certifications.length}</span>
+                        <span className="font-medium">{profile.certifications?.length || 0}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Achievements</span>
-                        <span className="font-medium">{profile.achievements.length}</span>
+                        <span className="font-medium">{profile.achievements?.length || 0}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Research Papers</span>
-                        <span className="font-medium">{profile.researchPapers.length}</span>
+                        <span className="font-medium">{profile.researchPapers?.length || 0}</span>
                       </div>
                     </div>
                   </div>
@@ -231,8 +263,39 @@ const Profile = () => {
               </CardContent>
             </Card>
 
+            {/* Hackathon Details */}
+            {profile.hackathonDetails && profile.hackathonDetails.length > 0 && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xl font-bold">Hackathon Details</CardTitle>
+                  <Trophy className="h-5 w-5 text-skill-blue" />
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {profile.hackathonDetails.map((hackathon: HackathonDetail) => (
+                      <div key={hackathon.id} className={`p-4 border rounded-lg hover:shadow-md transition-shadow ${hackathon.won ? 'border-green-300 bg-green-50' : ''}`}>
+                        <h4 className="font-semibold">{hackathon.name}</h4>
+                        {hackathon.position && (
+                          <div className="text-sm text-gray-700 font-medium mt-1">{hackathon.position}</div>
+                        )}
+                        <div className="flex items-center text-xs text-gray-500 mt-2">
+                          <CalendarIcon className="h-3 w-3 mr-1" />
+                          {formatDate(hackathon.date)}
+                        </div>
+                        {hackathon.won && (
+                          <div className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <Trophy className="h-3 w-3 mr-1" /> Winner
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Certifications */}
-            {profile.certifications.length > 0 && (
+            {profile.certifications && profile.certifications.length > 0 && (
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xl font-bold">Certifications</CardTitle>
@@ -245,11 +308,7 @@ const Profile = () => {
                         <h4 className="font-semibold">{cert.name}</h4>
                         <div className="text-sm text-gray-600 mt-1">{cert.issuer}</div>
                         <div className="text-xs text-gray-500 mt-2">
-                          {new Date(cert.date).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
+                          {formatDate(cert.date)}
                         </div>
                       </div>
                     ))}
@@ -259,7 +318,7 @@ const Profile = () => {
             )}
 
             {/* Achievements */}
-            {profile.achievements.length > 0 && (
+            {profile.achievements && profile.achievements.length > 0 && (
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xl font-bold">Achievements</CardTitle>
@@ -279,7 +338,7 @@ const Profile = () => {
             )}
 
             {/* Research Papers */}
-            {profile.researchPapers.length > 0 && (
+            {profile.researchPapers && profile.researchPapers.length > 0 && (
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xl font-bold">Research Papers</CardTitle>

@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   address TEXT,
   hackathon_participation INTEGER DEFAULT 0,
   hackathon_wins INTEGER DEFAULT 0,
+  hackathon_details JSONB DEFAULT '[]'::jsonb,
   cgpa NUMERIC(4,2) DEFAULT 0,
   degree_completed BOOLEAN DEFAULT false,
   certifications JSONB DEFAULT '[]'::jsonb,

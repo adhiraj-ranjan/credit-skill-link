@@ -8,6 +8,7 @@ export interface StudentProfile {
   address: string;
   hackathonParticipation: number;
   hackathonWins: number;
+  hackathonDetails?: HackathonDetail[];
   cgpa: number;
   degreeCompleted: boolean;
   certifications: Certification[];
@@ -34,6 +35,14 @@ export interface ResearchPaper {
   id: string;
   title: string;
   url: string;
+}
+
+export interface HackathonDetail {
+  id: string;
+  name: string;
+  date: string;
+  position?: string;
+  won: boolean;
 }
 
 export interface CreditScoreResponse {
