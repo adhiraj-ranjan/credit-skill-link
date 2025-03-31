@@ -1,22 +1,18 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { Session, User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from "@/integrations/supabase/client";
 
-// Initialize Supabase
-const supabaseUrl = 'https://replace-with-your-supabase-url.supabase.co';
-const supabaseKey = 'replace-with-your-anon-key';
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-type User = {
+type AuthUser = {
   id: string;
   email: string;
 } | null;
 
 interface AuthContextType {
-  user: User;
-  supabase: SupabaseClient;
+  user: AuthUser;
+  session: Session | null;
   signUp: (email: string, password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -26,37 +22,31 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User>(null);
+  const [user, setUser] = useState<AuthUser>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check active session
-    const session = supabase.auth.getSession();
-    
-    // Set user if there's an active session
-    session.then(({ data: { session } }) => {
-      if (session) {
-        setUser({
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ? {
           id: session.user.id,
           email: session.user.email || '',
-        });
+        } : null);
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    );
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-        });
-      } else {
-        setUser(null);
-      }
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ? {
+        id: session.user.id,
+        email: session.user.email || '',
+      } : null);
       setLoading(false);
     });
 
@@ -78,6 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       let message = 'An error occurred during registration.';
       if (error instanceof Error) message = error.message;
       toast.error(message);
+      console.error('Signup error:', error);
     } finally {
       setLoading(false);
     }
@@ -96,6 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       let message = 'Invalid login credentials.';
       if (error instanceof Error) message = error.message;
       toast.error(message);
+      console.error('Login error:', error);
     } finally {
       setLoading(false);
     }
@@ -123,7 +115,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
-        supabase,
+        session,
         signUp,
         signIn,
         signOut,
