@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Award, GraduationCap, X, Plus } from 'lucide-react';
@@ -111,13 +112,14 @@ const ProfileSetup = () => {
       // Upload profile image if exists
       let profileImageUrl = '';
       if (profileImage && user) {
-        const { data, error } = await useAuth().supabase.storage
+        // Use the imported supabase client
+        const { data, error } = await supabase.storage
           .from('profile-images')
           .upload(`${user.id}/${profileImage.name}`, profileImage);
 
         if (error) throw new Error('Error uploading profile image');
         
-        const { data: urlData } = useAuth().supabase.storage
+        const { data: urlData } = supabase.storage
           .from('profile-images')
           .getPublicUrl(`${user.id}/${profileImage.name}`);
           
@@ -126,7 +128,8 @@ const ProfileSetup = () => {
       
       // Save profile details to Supabase
       if (user) {
-        const { error } = await useAuth().supabase.from('profiles').upsert({
+        // Use the imported supabase client
+        const { error } = await supabase.from('profiles').upsert({
           id: user.id,
           full_name: fullName,
           college_name: collegeName,

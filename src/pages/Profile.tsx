@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { PieChart, Pie, ResponsiveContainer, Cell, Tooltip, Legend } from 'recharts';
 import { GraduationCap, User, Award, BookOpen, Trophy, FileText, Edit, LogOut } from 'lucide-react';
@@ -29,8 +30,8 @@ const Profile = () => {
       try {
         setLoading(true);
         
-        // Fetch profile data from Supabase
-        const { data, error } = await useAuth().supabase
+        // Fetch profile data from Supabase - using imported supabase client
+        const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
