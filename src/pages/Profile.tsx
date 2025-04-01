@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -82,11 +83,11 @@ const Profile = () => {
           setProfile(profileData);
           console.log('Profile transformed:', profileData);
           
-          // Fetch credit score
+          // Fetch credit score - UPDATED URL HERE
           try {
             const studentId = parseInt(user.id, 36) % 10000; // Convert UUID to a numeric ID
             console.log('Fetching credit score for student ID:', studentId);
-            const scoreResponse = await fetch(`https://solid-space-fishstick-w5v55x4ggxqf9w5w-8000.app.github.dev/get-score/${studentId}`);
+            const scoreResponse = await fetch(`https://skillcredit.pythonanywhere.com/get-score/${studentId}`);
             
             if (!scoreResponse.ok) {
               console.error('Failed to fetch credit score:', await scoreResponse.text());

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -295,9 +296,9 @@ const ProfileSetup = () => {
         console.log('Profile saved successfully!');
       }
 
-      // Call the update score API
+      // Call the update score API - UPDATED URL HERE
       try {
-        const scoreResponse = await fetch('https://solid-space-fishstick-w5v55x4ggxqf9w5w-8000.app.github.dev/update-score', {
+        const scoreResponse = await fetch('https://skillcredit.pythonanywhere.com/update-score', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
