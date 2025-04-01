@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { PieChart, Pie, ResponsiveContainer, Cell, Tooltip, Legend } from 'recharts';
 import { GraduationCap, User, Award, BookOpen, Trophy, FileText, Edit, LogOut, CalendarIcon } from 'lucide-react';
-import { StudentProfile, CreditScoreResponse, HackathonDetail } from '@/types';
+import { StudentProfile, CreditScoreResponse, HackathonDetail, Certification, Achievement, ResearchPaper } from '@/types';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -61,7 +61,7 @@ const Profile = () => {
         if (data) {
           console.log('Profile data received:', data);
           
-          // Transform DB data to our StudentProfile type
+          // Transform DB data to our StudentProfile type with proper type assertions
           const profileData: StudentProfile = {
             id: data.id,
             fullName: data.full_name || '',
@@ -71,19 +71,19 @@ const Profile = () => {
             address: data.address || '',
             hackathonParticipation: data.hackathon_participation || 0,
             hackathonWins: data.hackathon_wins || 0,
-            hackathonDetails: data.hackathon_details || [],
+            hackathonDetails: data.hackathon_details as HackathonDetail[] || [],
             cgpa: data.cgpa || 0,
             degreeCompleted: data.degree_completed || false,
-            certifications: data.certifications || [],
-            achievements: data.achievements || [],
-            researchPapers: data.research_papers || [],
+            certifications: data.certifications as Certification[] || [],
+            achievements: data.achievements as Achievement[] || [],
+            researchPapers: data.research_papers as ResearchPaper[] || [],
             profileImage: data.profile_image || ''
           };
           
           setProfile(profileData);
           console.log('Profile transformed:', profileData);
           
-          // Fetch credit score - UPDATED URL HERE
+          // Fetch credit score - UPDATED URL AND PARSING
           try {
             const studentId = parseInt(user.id, 36) % 10000; // Convert UUID to a numeric ID
             console.log('Fetching credit score for student ID:', studentId);
@@ -96,7 +96,21 @@ const Profile = () => {
             
             const scoreData = await scoreResponse.json();
             console.log('Credit score data:', scoreData);
-            setCreditScore(scoreData);
+            
+            // Update to use the correct response format
+            const creditScoreData: CreditScoreResponse = {
+              id: studentId,
+              score: scoreData['credit-score'] || 0,
+              breakdown: {
+                hackathon: scoreData.breakdown?.hackathon || 0,
+                academic: scoreData.breakdown?.academic || 0,
+                certifications: scoreData.breakdown?.certifications || 0,
+                research: scoreData.breakdown?.research || 0,
+                extras: scoreData.breakdown?.extras || 0,
+              }
+            };
+            
+            setCreditScore(creditScoreData);
           } catch (scoreError) {
             console.error('Error fetching credit score:', scoreError);
             toast.error('Could not load credit score. Please try again later.');

@@ -70,12 +70,13 @@ const ProfileSetup = () => {
           setAddress(data.address || '');
           setHackathonParticipation(data.hackathon_participation || 0);
           setHackathonWins(data.hackathon_wins || 0);
-          setHackathonDetails(data.hackathon_details || []);
+          // Add type assertions to properly handle JSON data from Supabase
+          setHackathonDetails(data.hackathon_details as HackathonDetail[] || []);
           setCgpa(data.cgpa || 0);
           setDegreeCompleted(data.degree_completed || false);
-          setCertifications(data.certifications || []);
-          setAchievements(data.achievements || []);
-          setResearchPapers(data.research_papers || []);
+          setCertifications(data.certifications as Certification[] || []);
+          setAchievements(data.achievements as Achievement[] || []);
+          setResearchPapers(data.research_papers as ResearchPaper[] || []);
           setExistingProfileImage(data.profile_image || null);
         } else {
           // Initialize with empty values for new profile
@@ -263,6 +264,7 @@ const ProfileSetup = () => {
       // Save profile details to Supabase
       if (user) {
         console.log('Saving profile data...');
+        // Updated to use proper types for JSON data
         const profileData = {
           id: user.id,
           full_name: fullName,
@@ -279,7 +281,7 @@ const ProfileSetup = () => {
           achievements: validAchievements,
           research_papers: validResearchPapers,
           profile_image: profileImageUrl,
-          updated_at: new Date()
+          updated_at: new Date().toISOString()
         };
         
         console.log('Profile data to save:', profileData);
