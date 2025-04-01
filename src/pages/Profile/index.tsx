@@ -81,10 +81,10 @@ const Profile = () => {
             const scoreData = await scoreResponse.json();
             console.log('Credit score data:', scoreData);
             
-            // Update to use the correct response format
+            // Update to use the correct response format: credit_score instead of credit-score
             const creditScoreData: CreditScoreResponse = {
               id: studentId,
-              score: scoreData['credit-score'] || 0,
+              score: scoreData['credit_score'] || 0,
               breakdown: {
                 hackathon: scoreData.breakdown?.hackathon || 0,
                 academic: scoreData.breakdown?.academic || 0,
