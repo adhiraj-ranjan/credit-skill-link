@@ -9,7 +9,7 @@ import ProfileLayout from './components/ProfileLayout';
 import ProfileHeader from './components/ProfileHeader';
 import ProfileSidebar from './components/ProfileSidebar';
 import ProfileContent from './components/ProfileContent';
-import { Json } from '@/integrations/supabase/types';
+import { convertDbDataToProfile } from '@/utils/profileUtils';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -44,26 +44,8 @@ const Profile = () => {
         if (data) {
           console.log('Profile data received:', data);
           
-          // Transform DB data to our StudentProfile type with proper type assertions
-          const profileData: StudentProfile = {
-            id: data.id,
-            fullName: data.full_name || '',
-            collegeName: data.college_name || '',
-            course: data.course || '',
-            degree: data.degree || '',
-            address: data.address || '',
-            hackathonParticipation: data.hackathon_participation || 0,
-            hackathonWins: data.hackathon_wins || 0,
-            // Properly cast Json types to our interface types
-            hackathonDetails: (data.hackathon_details as unknown as StudentProfile['hackathonDetails']) || [],
-            cgpa: data.cgpa || 0,
-            degreeCompleted: data.degree_completed || false,
-            certifications: (data.certifications as unknown as StudentProfile['certifications']) || [],
-            achievements: (data.achievements as unknown as StudentProfile['achievements']) || [],
-            researchPapers: (data.research_papers as unknown as StudentProfile['researchPapers']) || [],
-            profileImage: data.profile_image || ''
-          };
-          
+          // Transform DB data to our StudentProfile type using the utility function
+          const profileData = convertDbDataToProfile(data);
           setProfile(profileData);
           console.log('Profile transformed:', profileData);
           

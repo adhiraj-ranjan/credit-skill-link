@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Award, GraduationCap, X, Plus } from 'lucide-react';
 import { Certification, Achievement, ResearchPaper, HackathonDetail } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
+import { convertDbDataToProfile, convertProfileToDbData } from '@/utils/profileUtils';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
@@ -62,22 +62,25 @@ const ProfileSetup = () => {
         if (data) {
           console.log('Fetched profile data:', data);
           setIsEditMode(true);
+          
+          // Use our utility function to convert DB data to profile format
+          const profileData = convertDbDataToProfile(data);
+          
           // Populate form with existing data
-          setFullName(data.full_name || '');
-          setCollegeName(data.college_name || '');
-          setCourse(data.course || '');
-          setDegree(data.degree || '');
-          setAddress(data.address || '');
-          setHackathonParticipation(data.hackathon_participation || 0);
-          setHackathonWins(data.hackathon_wins || 0);
-          // Add type assertions to properly handle JSON data from Supabase
-          setHackathonDetails(data.hackathon_details as HackathonDetail[] || []);
-          setCgpa(data.cgpa || 0);
-          setDegreeCompleted(data.degree_completed || false);
-          setCertifications(data.certifications as Certification[] || []);
-          setAchievements(data.achievements as Achievement[] || []);
-          setResearchPapers(data.research_papers as ResearchPaper[] || []);
-          setExistingProfileImage(data.profile_image || null);
+          setFullName(profileData.fullName);
+          setCollegeName(profileData.collegeName);
+          setCourse(profileData.course);
+          setDegree(profileData.degree);
+          setAddress(profileData.address);
+          setHackathonParticipation(profileData.hackathonParticipation);
+          setHackathonWins(profileData.hackathonWins);
+          setHackathonDetails(profileData.hackathonDetails || []);
+          setCgpa(profileData.cgpa);
+          setDegreeCompleted(profileData.degreeCompleted);
+          setCertifications(profileData.certifications || []);
+          setAchievements(profileData.achievements || []);
+          setResearchPapers(profileData.researchPapers || []);
+          setExistingProfileImage(profileData.profileImage || null);
         } else {
           // Initialize with empty values for new profile
           setCertifications([{ id: uuidv4(), name: '', issuer: '', date: '' }]);
@@ -107,7 +110,6 @@ const ProfileSetup = () => {
     }
   };
 
-  // Hackathon details management
   const addHackathonDetail = () => {
     setHackathonDetails([...hackathonDetails, { id: uuidv4(), name: '', date: '', won: false }]);
   };
@@ -138,7 +140,6 @@ const ProfileSetup = () => {
     }
   };
 
-  // Certification management
   const addCertification = () => {
     setCertifications([...certifications, { id: uuidv4(), name: '', issuer: '', date: '' }]);
   };
@@ -158,7 +159,6 @@ const ProfileSetup = () => {
     }
   };
 
-  // Achievement management
   const addAchievement = () => {
     setAchievements([...achievements, { id: uuidv4(), title: '', description: '' }]);
   };
@@ -178,7 +178,6 @@ const ProfileSetup = () => {
     }
   };
 
-  // Research paper management
   const addResearchPaper = () => {
     setResearchPapers([...researchPapers, { id: uuidv4(), title: '', url: '' }]);
   };
@@ -264,31 +263,33 @@ const ProfileSetup = () => {
       // Save profile details to Supabase
       if (user) {
         console.log('Saving profile data...');
-        // Updated to use proper types for JSON data
-        const profileData = {
+        
+        // Create profile object
+        const profile = {
           id: user.id,
-          full_name: fullName,
-          college_name: collegeName,
+          fullName,
+          collegeName,
           course,
           degree,
           address,
-          hackathon_participation: validHackathonDetails.length,
-          hackathon_wins: validHackathonDetails.filter(h => h.won).length,
-          hackathon_details: validHackathonDetails,
+          hackathonParticipation: validHackathonDetails.length,
+          hackathonWins: validHackathonDetails.filter(h => h.won).length,
+          hackathonDetails: validHackathonDetails,
           cgpa,
-          degree_completed: degreeCompleted,
+          degreeCompleted,
           certifications: validCertifications,
           achievements: validAchievements,
-          research_papers: validResearchPapers,
-          profile_image: profileImageUrl,
-          updated_at: new Date().toISOString()
+          researchPapers: validResearchPapers,
+          profileImage: profileImageUrl
         };
         
-        console.log('Profile data to save:', profileData);
+        // Convert profile to DB format
+        const profileDbData = convertProfileToDbData(profile);
+        console.log('Profile data to save:', profileDbData);
         
         const { error } = await supabase
           .from('profiles')
-          .upsert(profileData, { onConflict: 'id' });
+          .upsert(profileDbData, { onConflict: 'id' });
 
         if (error) {
           console.error('Error saving profile:', error);
@@ -298,7 +299,7 @@ const ProfileSetup = () => {
         console.log('Profile saved successfully!');
       }
 
-      // Call the update score API - UPDATED URL HERE
+      // Call the update score API
       try {
         const scoreResponse = await fetch('https://skillcredit.pythonanywhere.com/update-score', {
           method: 'POST',
