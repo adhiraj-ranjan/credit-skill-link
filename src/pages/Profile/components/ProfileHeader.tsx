@@ -18,7 +18,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onEditClick, onL
         <GraduationCap className="h-8 w-8 text-skill-blue" />
         <h1 className="text-3xl font-bold text-skill-darkGray">Student Profile</h1>
       </div>
-      <div className="flex space-x-4">
+      <div className="flex flex-wrap gap-2">
         <Button
           variant="outline"
           asChild
