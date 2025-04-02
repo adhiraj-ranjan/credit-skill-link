@@ -11,6 +11,7 @@ export const convertJsonToTypedArray = <T>(data: Json | null | undefined): T[] =
   try {
     // If it's already an array, attempt to cast it
     if (Array.isArray(data)) {
+      // Use as unknown first then cast to T[]
       return data as unknown as T[];
     }
     return [];
@@ -24,6 +25,27 @@ export const convertJsonToTypedArray = <T>(data: Json | null | undefined): T[] =
  * Convert JSON data from Supabase to StudentProfile type
  */
 export const convertDbDataToProfile = (data: any): StudentProfile => {
+  if (!data) {
+    console.warn("No profile data provided to convert");
+    return {
+      id: '',
+      fullName: '',
+      collegeName: '',
+      course: '',
+      degree: '',
+      address: '',
+      hackathonParticipation: 0,
+      hackathonWins: 0,
+      hackathonDetails: [],
+      cgpa: 0,
+      degreeCompleted: false,
+      certifications: [],
+      achievements: [],
+      researchPapers: [],
+      profileImage: ''
+    };
+  }
+  
   return {
     id: data.id,
     fullName: data.full_name || '',

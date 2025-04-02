@@ -69,13 +69,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Function to check if user profile exists
   const checkProfileExists = async (userId: string) => {
     try {
+      // Using maybeSingle() instead of single() to avoid errors when no profile exists
       const { data, error } = await supabase
         .from('profiles')
         .select('id')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         console.error('Error checking profile:', error);
         throw error;
       }
@@ -116,9 +117,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
       
-      // Redirect to profile setup after signup
-      navigate('/profile-setup');
-      toast.success('Registration successful! Please set up your profile.');
+      toast.success('Registration successful! Please check your email for verification.');
+      // Don't redirect yet - wait for email verification
     } catch (error: any) {
       toast.error(error.message || 'Error signing up');
       throw error;
