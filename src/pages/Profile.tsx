@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { PieChart, Pie, ResponsiveContainer, Cell, Tooltip, Legend } from 'recharts';
 import { GraduationCap, User, Award, BookOpen, Trophy, FileText, Edit, LogOut, CalendarIcon } from 'lucide-react';
-import { StudentProfile, CreditScoreResponse } from '@/types';
+import { StudentProfile, CreditScoreResponse, HackathonDetail } from '@/types';
 import { convertDbDataToProfile } from '@/utils/profileUtils';
 
 const Profile = () => {
