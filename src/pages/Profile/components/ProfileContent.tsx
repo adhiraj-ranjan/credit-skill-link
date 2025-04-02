@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { StudentProfile } from '@/types';
 import PersonalInfoCard from './PersonalInfoCard';
 import HackathonDetailsCard from './HackathonDetailsCard';

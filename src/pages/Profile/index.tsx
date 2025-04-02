@@ -112,9 +112,17 @@ const Profile = () => {
     return null; // Will be redirected in useEffect
   }
 
+  const handleEditClick = () => {
+    navigate('/profile-setup');
+  };
+
   return (
     <ProfileLayout>
-      <ProfileHeader profile={profile} onEditClick={() => navigate('/profile-setup')} onLogout={signOut} />
+      <ProfileHeader 
+        profile={profile} 
+        onEditClick={handleEditClick} 
+        onLogout={signOut} 
+      />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <ProfileContent profile={profile} />
         <ProfileSidebar creditScore={creditScore} />
