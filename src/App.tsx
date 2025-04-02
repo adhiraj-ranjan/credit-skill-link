@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ProfileSetup from "./pages/ProfileSetup";
 import Profile from "./pages/Profile";
+import JobPostings from "./pages/JobPostings";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/job-postings" element={<JobPostings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
