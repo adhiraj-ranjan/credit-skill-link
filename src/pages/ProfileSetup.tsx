@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,10 +83,10 @@ const ProfileSetup = () => {
           setExistingProfileImage(profileData.profileImage || null);
         } else {
           // Initialize with empty values for new profile
+          setHackathonDetails([{ id: uuidv4(), name: '', date: '', won: false }]);
           setCertifications([{ id: uuidv4(), name: '', issuer: '', date: '' }]);
           setAchievements([{ id: uuidv4(), title: '', description: '' }]);
           setResearchPapers([{ id: uuidv4(), title: '', url: '' }]);
-          setHackathonDetails([{ id: uuidv4(), name: '', date: '', won: false }]);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -258,7 +258,7 @@ const ProfileSetup = () => {
       const validCertifications = filterEmptyItems(certifications);
       const validAchievements = filterEmptyItems(achievements);
       const validResearchPapers = filterEmptyItems(researchPapers);
-      const validHackathonDetails = filterEmptyItems(hackathonDetails);
+      const validHackathonDetails = filterEmptyItems(hackathonDetails) as HackathonDetail[];
       
       // Save profile details to Supabase
       if (user) {
