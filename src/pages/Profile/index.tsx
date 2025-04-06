@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import { StudentProfile, CreditScoreResponse } from '@/types';
+import { StudentProfile, CreditScoreResponse, Project } from '@/types';
 import ProfileLayout from './components/ProfileLayout';
 import ProfileHeader from './components/ProfileHeader';
 import ProfileSidebar from './components/ProfileSidebar';
 import ProfileContent from './components/ProfileContent';
+import ProjectsManager from './components/ProjectsManager';
+import ProjectDialog from './components/ProjectDialog';
 import { convertDbDataToProfile } from '@/utils/profileUtils';
 
 const Profile = () => {
@@ -17,6 +19,9 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [creditScore, setCreditScore] = useState<CreditScoreResponse | null>(null);
+  const [editingProjects, setEditingProjects] = useState(false);
+  const [projectDialogOpen, setProjectDialogOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -46,6 +51,12 @@ const Profile = () => {
           
           // Transform DB data to our StudentProfile type using the utility function
           const profileData = convertDbDataToProfile(data);
+          
+          // Initialize projects array if it doesn't exist
+          if (!profileData.projects) {
+            profileData.projects = [];
+          }
+          
           setProfile(profileData);
           console.log('Profile transformed:', profileData);
           
@@ -97,6 +108,79 @@ const Profile = () => {
     fetchUserProfile();
   }, [user, navigate]);
 
+  const handleProjectsChange = async (updatedProjects: Project[]) => {
+    if (!profile || !user) return;
+    
+    try {
+      setLoading(true);
+      
+      // Update local state first for immediate UI feedback
+      const updatedProfile = {
+        ...profile,
+        projects: updatedProjects
+      };
+      setProfile(updatedProfile);
+
+      // Convert to DB format
+      const profileDbData = convertProfileToDbData({
+        ...profile,
+        projects: updatedProjects
+      });
+      
+      // Save to Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .update(profileDbData)
+        .eq('id', user.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast.success('Projects updated successfully!');
+    } catch (error) {
+      console.error('Error updating projects:', error);
+      toast.error('Failed to update projects. Please try again.');
+      
+      // Revert to previous state if there was an error
+      fetchUserProfile();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserProfile = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) throw error;
+      
+      if (data) {
+        const profileData = convertDbDataToProfile(data);
+        setProfile(profileData);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  const handleEditClick = () => {
+    navigate('/profile-setup');
+  };
+
+  const handleEditProjects = () => {
+    setEditingProjects(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -112,10 +196,6 @@ const Profile = () => {
     return null; // Will be redirected in useEffect
   }
 
-  const handleEditClick = () => {
-    navigate('/profile-setup');
-  };
-
   return (
     <ProfileLayout>
       <ProfileHeader 
@@ -123,10 +203,40 @@ const Profile = () => {
         onEditClick={handleEditClick} 
         onLogout={signOut} 
       />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <ProfileContent profile={profile} />
-        <ProfileSidebar creditScore={creditScore} />
-      </div>
+      
+      {editingProjects ? (
+        <div className="mb-8">
+          <ProjectsManager 
+            projects={profile.projects || []} 
+            onProjectsChange={(projects) => {
+              handleProjectsChange(projects);
+              setEditingProjects(false);
+            }} 
+          />
+          <div className="mt-4 flex justify-end">
+            <Button 
+              variant="outline" 
+              onClick={() => setEditingProjects(false)}
+              className="mr-2"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => setEditingProjects(false)}
+            >
+              Done
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <ProfileContent 
+            profile={profile} 
+            onEditProjects={handleEditProjects}
+          />
+          <ProfileSidebar creditScore={creditScore} />
+        </div>
+      )}
     </ProfileLayout>
   );
 };
