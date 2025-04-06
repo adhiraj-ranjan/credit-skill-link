@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,7 +10,8 @@ import ProfileSidebar from './components/ProfileSidebar';
 import ProfileContent from './components/ProfileContent';
 import ProjectsManager from './components/ProjectsManager';
 import ProjectDialog from './components/ProjectDialog';
-import { convertDbDataToProfile } from '@/utils/profileUtils';
+import { convertDbDataToProfile, convertProfileToDbData } from '@/utils/profileUtils';
+import { Button } from '@/components/ui/button';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -34,7 +34,6 @@ const Profile = () => {
         setLoading(true);
         console.log('Fetching profile for user:', user.id);
         
-        // Fetch profile data from Supabase
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -49,10 +48,8 @@ const Profile = () => {
         if (data) {
           console.log('Profile data received:', data);
           
-          // Transform DB data to our StudentProfile type using the utility function
           const profileData = convertDbDataToProfile(data);
           
-          // Initialize projects array if it doesn't exist
           if (!profileData.projects) {
             profileData.projects = [];
           }
@@ -60,9 +57,8 @@ const Profile = () => {
           setProfile(profileData);
           console.log('Profile transformed:', profileData);
           
-          // Fetch credit score
           try {
-            const studentId = parseInt(user.id, 36) % 10000; // Convert UUID to a numeric ID
+            const studentId = parseInt(user.id, 36) % 10000;
             console.log('Fetching credit score for student ID:', studentId);
             const scoreResponse = await fetch(`https://skillcredit.pythonanywhere.com/get-score/${studentId}`);
             
@@ -74,7 +70,6 @@ const Profile = () => {
             const scoreData = await scoreResponse.json();
             console.log('Credit score data:', scoreData);
             
-            // Update to use the correct response format: credit_score instead of credit-score
             const creditScoreData: CreditScoreResponse = {
               id: studentId,
               score: scoreData['credit_score'] || 0,
@@ -93,7 +88,6 @@ const Profile = () => {
             toast.error('Could not load credit score. Please try again later.');
           }
         } else {
-          // No profile found, redirect to setup
           console.log('No profile found, redirecting to setup');
           navigate('/profile-setup');
         }
@@ -114,20 +108,17 @@ const Profile = () => {
     try {
       setLoading(true);
       
-      // Update local state first for immediate UI feedback
       const updatedProfile = {
         ...profile,
         projects: updatedProjects
       };
       setProfile(updatedProfile);
 
-      // Convert to DB format
       const profileDbData = convertProfileToDbData({
         ...profile,
         projects: updatedProjects
       });
       
-      // Save to Supabase
       const { error } = await supabase
         .from('profiles')
         .update(profileDbData)
@@ -142,7 +133,6 @@ const Profile = () => {
       console.error('Error updating projects:', error);
       toast.error('Failed to update projects. Please try again.');
       
-      // Revert to previous state if there was an error
       fetchUserProfile();
     } finally {
       setLoading(false);

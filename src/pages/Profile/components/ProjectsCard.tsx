@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Project } from '@/types';
-import { Code, ExternalLink, GitHub, Calendar } from 'lucide-react';
+import { Code, ExternalLink, Github, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -84,7 +83,7 @@ const ProjectsCard: React.FC<ProjectsCardProps> = ({ projects, isEditing = false
                       rel="noopener noreferrer"
                       className="flex items-center text-sm text-skill-blue hover:underline"
                     >
-                      <GitHub className="h-4 w-4 mr-1" /> GitHub Repo
+                      <Github className="h-4 w-4 mr-1" /> GitHub Repo
                     </a>
                   )}
                   {project.liveUrl && (

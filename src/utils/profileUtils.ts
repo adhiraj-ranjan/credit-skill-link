@@ -20,6 +20,7 @@ export const convertDbDataToProfile = (data: any): StudentProfile => {
     researchPapers: data.research_papers || [],
     projects: data.projects || [],
     profileImage: data.profile_image || '',
+    creditScore: data.credit_score || undefined,
   };
 };
 
