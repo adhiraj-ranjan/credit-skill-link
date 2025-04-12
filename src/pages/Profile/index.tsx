@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,6 +13,7 @@ import ProjectsManager from './components/ProjectsManager';
 import ProjectDialog from './components/ProjectDialog';
 import { convertDbDataToProfile, convertProfileToDbData } from '@/utils/profileUtils';
 import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -167,6 +169,30 @@ const Profile = () => {
     navigate('/profile-setup');
   };
 
+  const handleAddProject = () => {
+    setSelectedProject(null);
+    setProjectDialogOpen(true);
+  };
+
+  const handleSaveProject = (project: Project) => {
+    if (!profile) return;
+    
+    let updatedProjects: Project[];
+    
+    if (selectedProject) {
+      // Update existing project
+      updatedProjects = profile.projects.map(p => 
+        p.id === project.id ? project : p
+      );
+    } else {
+      // Add new project
+      updatedProjects = [...profile.projects, project];
+    }
+    
+    handleProjectsChange(updatedProjects);
+    setProjectDialogOpen(false);
+  };
+
   const handleEditProjects = () => {
     setEditingProjects(true);
   };
@@ -219,14 +245,32 @@ const Profile = () => {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <ProfileContent 
-            profile={profile} 
-            onEditProjects={handleEditProjects}
-          />
-          <ProfileSidebar creditScore={creditScore} />
-        </div>
+        <>
+          <div className="mb-4 flex justify-end">
+            <Button 
+              onClick={handleAddProject}
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" /> Add Project
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <ProfileContent 
+              profile={profile} 
+              onEditProjects={handleEditProjects}
+            />
+            <ProfileSidebar creditScore={creditScore} />
+          </div>
+        </>
       )}
+      
+      <ProjectDialog
+        open={projectDialogOpen}
+        onOpenChange={setProjectDialogOpen}
+        onSave={handleSaveProject}
+        project={selectedProject}
+        isNew={!selectedProject}
+      />
     </ProfileLayout>
   );
 };

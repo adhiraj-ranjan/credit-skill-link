@@ -13,7 +13,7 @@ interface ProfileContentProps {
   onEditProjects?: () => void;
 }
 
-const ProfileContent: React.FC<ProfileContentProps> = ({ profile, onEditProjects }) => {
+const ProfileContent: React.FC<ProfileContentProps> = ({ profile }) => {
   return (
     <div className="lg:col-span-2 space-y-6">
       <PersonalInfoCard profile={profile} />
@@ -21,7 +21,6 @@ const ProfileContent: React.FC<ProfileContentProps> = ({ profile, onEditProjects
       {profile.projects && profile.projects.length > 0 && (
         <ProjectsCard 
           projects={profile.projects}
-          onEdit={onEditProjects}
         />
       )}
       
