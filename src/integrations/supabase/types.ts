@@ -25,6 +25,7 @@ export type Database = {
           hackathon_wins: number | null
           id: string
           profile_image: string | null
+          projects: Json | null
           research_papers: Json | null
           updated_at: string | null
         }
@@ -43,6 +44,7 @@ export type Database = {
           hackathon_wins?: number | null
           id: string
           profile_image?: string | null
+          projects?: Json | null
           research_papers?: Json | null
           updated_at?: string | null
         }
@@ -61,6 +63,7 @@ export type Database = {
           hackathon_wins?: number | null
           id?: string
           profile_image?: string | null
+          projects?: Json | null
           research_papers?: Json | null
           updated_at?: string | null
         }

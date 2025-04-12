@@ -10,7 +10,6 @@ import ProjectsCard from './ProjectsCard';
 
 interface ProfileContentProps {
   profile: StudentProfile;
-  onEditProjects?: () => void;
 }
 
 const ProfileContent: React.FC<ProfileContentProps> = ({ profile }) => {

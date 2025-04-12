@@ -27,9 +27,7 @@ const ProjectsCard: React.FC<ProjectsCardProps> = ({ projects }) => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold">Projects</CardTitle>
-        <div className="flex items-center">
-          <Code className="h-5 w-5 text-skill-blue mr-2" />
-        </div>
+        <Code className="h-5 w-5 text-skill-blue" />
       </CardHeader>
       <CardContent>
         {projects.length === 0 ? (
