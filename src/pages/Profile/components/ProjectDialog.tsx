@@ -14,7 +14,7 @@ interface ProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (project: Project) => void;
-  project?: Project;
+  project?: Project | null;
   isNew?: boolean;
 }
 
@@ -34,15 +34,15 @@ const ProjectDialog: React.FC<ProjectDialogProps> = ({
   open, 
   onOpenChange, 
   onSave, 
-  project = defaultProject,
+  project = null,
   isNew = true
 }) => {
   const [formData, setFormData] = useState<Project>({...defaultProject, id: uuidv4()});
   
   useEffect(() => {
     // Initialize with existing project data or default values for new project
-    if (project) {
-      setFormData(isNew ? {...defaultProject, id: uuidv4()} : {...project});
+    if (open) {
+      setFormData(isNew ? {...defaultProject, id: uuidv4()} : {...(project || defaultProject)});
     }
   }, [project, isNew, open]);
 

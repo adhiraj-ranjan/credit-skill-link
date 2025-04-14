@@ -20,8 +20,10 @@ const Profile = () => {
   const { user, signOut } = useAuth();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<StudentProfile | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [creditScore, setCreditScore] = useState<CreditScoreResponse | null>(null);
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
+  const [pendingProjects, setPendingProjects] = useState<Project[]>([]);
 
   useEffect(() => {
     fetchUserProfile();
@@ -58,6 +60,8 @@ const Profile = () => {
         }
         
         setProfile(profileData);
+        // Initialize pendingProjects with the current projects
+        setPendingProjects(profileData.projects);
         console.log('Profile transformed:', profileData);
         
         try {
@@ -102,22 +106,19 @@ const Profile = () => {
     }
   };
 
-  const handleProjectsChange = async (updatedProjects: Project[]) => {
+  const saveProfileChanges = async () => {
     if (!profile || !user) return;
     
     try {
       setLoading(true);
       
+      // Update the profile with the pending projects
       const updatedProfile = {
         ...profile,
-        projects: updatedProjects
+        projects: pendingProjects
       };
-      setProfile(updatedProfile);
-
-      const profileDbData = convertProfileToDbData({
-        ...profile,
-        projects: updatedProjects
-      });
+      
+      const profileDbData = convertProfileToDbData(updatedProfile);
       
       const { error } = await supabase
         .from('profiles')
@@ -125,15 +126,17 @@ const Profile = () => {
         .eq('id', user.id);
       
       if (error) {
-        console.error('Error updating projects:', error);
+        console.error('Error updating profile:', error);
         throw error;
       }
       
-      toast.success('Projects updated successfully!');
+      // Update local state
+      setProfile(updatedProfile);
+      setHasUnsavedChanges(false);
+      toast.success('Profile updated successfully!');
     } catch (error) {
-      console.error('Error updating projects:', error);
-      toast.error('Failed to update projects. Please try again.');
-      fetchUserProfile();
+      console.error('Error saving profile:', error);
+      toast.error('Failed to save profile. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -144,26 +147,25 @@ const Profile = () => {
   };
 
   const handleSaveProject = (project: Project) => {
-    if (!profile) return;
-    
     // Add an ID if it doesn't have one (new project)
     if (!project.id) {
       project.id = uuidv4();
     }
     
-    // Add the new project to the existing projects array
-    const updatedProjects = [...profile.projects, project];
+    // Add the new project to the pending projects array
+    const updatedProjects = [...pendingProjects, project];
     
-    // Save the updated projects
-    handleProjectsChange(updatedProjects);
-    setProjectDialogOpen(false);
+    // Update pending projects, but don't save to database yet
+    setPendingProjects(updatedProjects);
+    setHasUnsavedChanges(true);
+    toast.success('Project added! Click "Save Changes" to update your profile.');
   };
 
   const handleEditClick = () => {
     navigate('/profile-setup');
   };
 
-  if (loading) {
+  if (loading && !profile) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -186,17 +188,32 @@ const Profile = () => {
         onLogout={signOut} 
       />
       
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex justify-between items-center">
         <Button 
           onClick={handleAddProject}
           className="flex items-center gap-1"
         >
           <Plus className="h-4 w-4" /> Add Project
         </Button>
+        
+        {hasUnsavedChanges && (
+          <Button 
+            onClick={saveProfileChanges}
+            variant="default"
+            disabled={loading}
+          >
+            {loading ? 'Saving...' : 'Save Changes'}
+          </Button>
+        )}
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <ProfileContent profile={profile} />
+        <ProfileContent 
+          profile={{
+            ...profile,
+            projects: pendingProjects // Use pending projects for display
+          }} 
+        />
         <ProfileSidebar creditScore={creditScore} />
       </div>
       
