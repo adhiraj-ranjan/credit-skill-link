@@ -14,6 +14,7 @@ interface ProjectDialogProps {
   onOpenChange: (open: boolean) => void;
   onSave: (project: Project) => void;
   project?: Project | null;
+  isNew?: boolean;
 }
 
 const defaultProject: Project = {
@@ -32,7 +33,8 @@ const ProjectDialog: React.FC<ProjectDialogProps> = ({
   open, 
   onOpenChange, 
   onSave, 
-  project = null
+  project = null,
+  isNew = true
 }) => {
   const [formData, setFormData] = useState<Project>({...defaultProject});
   
@@ -103,7 +105,7 @@ const ProjectDialog: React.FC<ProjectDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{project ? 'Edit Project' : 'Add New Project'}</DialogTitle>
+          <DialogTitle>{isNew ? 'Add New Project' : 'Edit Project'}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6 py-4">
