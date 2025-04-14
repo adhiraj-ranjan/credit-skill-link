@@ -10,9 +10,10 @@ import ProjectsCard from './ProjectsCard';
 
 interface ProfileContentProps {
   profile: StudentProfile;
+  onDeleteProject?: (projectId: string) => void;
 }
 
-const ProfileContent: React.FC<ProfileContentProps> = ({ profile }) => {
+const ProfileContent: React.FC<ProfileContentProps> = ({ profile, onDeleteProject }) => {
   return (
     <div className="lg:col-span-2 space-y-6">
       <PersonalInfoCard profile={profile} />
@@ -20,6 +21,7 @@ const ProfileContent: React.FC<ProfileContentProps> = ({ profile }) => {
       {profile.projects && profile.projects.length > 0 && (
         <ProjectsCard 
           projects={profile.projects}
+          onDelete={onDeleteProject}
         />
       )}
       

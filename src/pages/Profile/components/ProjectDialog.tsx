@@ -8,14 +8,12 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { X, Plus } from 'lucide-react';
 import { Project } from '@/types';
-import { v4 as uuidv4 } from 'uuid';
 
 interface ProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (project: Project) => void;
   project?: Project | null;
-  isNew?: boolean;
 }
 
 const defaultProject: Project = {
@@ -34,17 +32,15 @@ const ProjectDialog: React.FC<ProjectDialogProps> = ({
   open, 
   onOpenChange, 
   onSave, 
-  project = null,
-  isNew = true
+  project = null
 }) => {
-  const [formData, setFormData] = useState<Project>({...defaultProject, id: uuidv4()});
+  const [formData, setFormData] = useState<Project>({...defaultProject});
   
   useEffect(() => {
-    // Initialize with existing project data or default values for new project
     if (open) {
-      setFormData(isNew ? {...defaultProject, id: uuidv4()} : {...(project || defaultProject)});
+      setFormData(project ? {...project} : {...defaultProject});
     }
-  }, [project, isNew, open]);
+  }, [project, open]);
 
   const handleChange = (field: keyof Project, value: string | boolean | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -72,7 +68,6 @@ const ProjectDialog: React.FC<ProjectDialogProps> = ({
     
     // Validate form
     if (!formData.title.trim() || !formData.description.trim() || !formData.startDate) {
-      // You could add more sophisticated validation and error messages
       alert('Please fill in all required fields');
       return;
     }
@@ -91,7 +86,6 @@ const ProjectDialog: React.FC<ProjectDialogProps> = ({
     };
     
     onSave(finalFormData);
-    onOpenChange(false);
   };
 
   const handleOngoingChange = (checked: boolean) => {
@@ -109,7 +103,7 @@ const ProjectDialog: React.FC<ProjectDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isNew ? 'Add New Project' : 'Edit Project'}</DialogTitle>
+          <DialogTitle>{project ? 'Edit Project' : 'Add New Project'}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6 py-4">

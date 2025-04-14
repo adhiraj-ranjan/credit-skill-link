@@ -61,7 +61,7 @@ const Profile = () => {
         
         setProfile(profileData);
         // Initialize pendingProjects with the current projects
-        setPendingProjects(profileData.projects);
+        setPendingProjects(profileData.projects || []);
         console.log('Profile transformed:', profileData);
         
         try {
@@ -159,6 +159,17 @@ const Profile = () => {
     setPendingProjects(updatedProjects);
     setHasUnsavedChanges(true);
     toast.success('Project added! Click "Save Changes" to update your profile.');
+    setProjectDialogOpen(false);
+  };
+
+  const handleDeleteProject = (projectId: string) => {
+    // Filter out the project to be deleted
+    const updatedProjects = pendingProjects.filter(project => project.id !== projectId);
+    
+    // Update pending projects, but don't save to database yet
+    setPendingProjects(updatedProjects);
+    setHasUnsavedChanges(true);
+    toast.success('Project removed! Click "Save Changes" to update your profile.');
   };
 
   const handleEditClick = () => {
@@ -213,6 +224,7 @@ const Profile = () => {
             ...profile,
             projects: pendingProjects // Use pending projects for display
           }} 
+          onDeleteProject={handleDeleteProject}
         />
         <ProfileSidebar creditScore={creditScore} />
       </div>
@@ -222,7 +234,6 @@ const Profile = () => {
         onOpenChange={setProjectDialogOpen}
         onSave={handleSaveProject}
         project={null}
-        isNew={true}
       />
     </ProfileLayout>
   );

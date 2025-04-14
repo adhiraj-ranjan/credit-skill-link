@@ -2,11 +2,13 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Project } from '@/types';
-import { Code, ExternalLink, Github, Calendar } from 'lucide-react';
+import { Code, ExternalLink, Github, Calendar, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface ProjectsCardProps {
   projects: Project[];
+  onDelete?: (projectId: string) => void;
 }
 
 const formatDate = (dateString: string) => {
@@ -22,7 +24,7 @@ const formatDate = (dateString: string) => {
   }
 };
 
-const ProjectsCard: React.FC<ProjectsCardProps> = ({ projects }) => {
+const ProjectsCard: React.FC<ProjectsCardProps> = ({ projects, onDelete }) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -40,15 +42,27 @@ const ProjectsCard: React.FC<ProjectsCardProps> = ({ projects }) => {
               <div key={project.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                   <h3 className="text-lg font-semibold">{project.title}</h3>
-                  <div className="flex flex-wrap gap-2 items-center text-sm text-gray-500">
-                    <span className="flex items-center">
-                      <Calendar className="h-3.5 w-3.5 mr-1" />
-                      {formatDate(project.startDate)}
-                      {project.isOngoing ? 
-                        " - Present" : 
-                        project.endDate ? ` - ${formatDate(project.endDate)}` : ""
-                      }
-                    </span>
+                  <div className="flex items-center gap-2">
+                    {onDelete && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-red-500 hover:text-red-700" 
+                        onClick={() => onDelete(project.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <div className="text-sm text-gray-500">
+                      <span className="flex items-center">
+                        <Calendar className="h-3.5 w-3.5 mr-1" />
+                        {formatDate(project.startDate)}
+                        {project.isOngoing ? 
+                          " - Present" : 
+                          project.endDate ? ` - ${formatDate(project.endDate)}` : ""
+                        }
+                      </span>
+                    </div>
                   </div>
                 </div>
                 
