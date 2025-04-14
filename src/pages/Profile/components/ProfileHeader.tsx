@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { GraduationCap, Edit, LogOut, Briefcase, ExternalLink } from 'lucide-react';
+import { GraduationCap, Edit, LogOut, Briefcase } from 'lucide-react';
 import { StudentProfile } from '@/types';
 
 interface ProfileHeaderProps {
