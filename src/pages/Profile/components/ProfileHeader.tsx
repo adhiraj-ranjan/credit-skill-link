@@ -21,8 +21,8 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onEditClick, onL
       <div className="flex flex-wrap gap-2">
         <Button
           variant="outline"
-          asChild
           className="flex items-center"
+          asChild
         >
           <Link to="/job-postings">
             <Briefcase className="mr-2 h-4 w-4" /> Job Postings
