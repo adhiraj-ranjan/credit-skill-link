@@ -10,7 +10,6 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ProfileSetup from "./pages/ProfileSetup";
 import Profile from "./pages/Profile";
-import ProjectsPage from "./pages/Projects";
 import JobPostings from "./pages/JobPostings";
 import NotFound from "./pages/NotFound";
 
@@ -30,7 +29,6 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/job-postings" element={<JobPostings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
