@@ -12,6 +12,7 @@ import ProfileSetup from "./pages/ProfileSetup";
 import Profile from "./pages/Profile"; // Using the newer Profile component
 import JobPostings from "./pages/JobPostings";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient();
@@ -28,8 +29,16 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/job-postings" element={<JobPostings />} />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/job-postings" element={
+              <ProtectedRoute>
+                <JobPostings />
+              </ProtectedRoute>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
