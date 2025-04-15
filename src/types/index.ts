@@ -16,7 +16,6 @@ export interface StudentProfile {
   researchPapers: ResearchPaper[];
   profileImage?: string;
   creditScore?: number;
-  projects?: Project[];
 }
 
 export interface Certification {
@@ -44,17 +43,6 @@ export interface HackathonDetail {
   date: string;
   position?: string;
   won: boolean;
-}
-
-export interface Project {
-  id: string;
-  title: string;
-  description: string;
-  technologies: string[];
-  imageUrl?: string;
-  projectUrl?: string;
-  githubUrl?: string;
-  date: string;
 }
 
 export interface CreditScoreResponse {
