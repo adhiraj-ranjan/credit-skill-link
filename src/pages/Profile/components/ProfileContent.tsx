@@ -2,6 +2,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { StudentProfile } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Layers } from 'lucide-react';
 import PersonalInfoCard from './PersonalInfoCard';
 import HackathonDetailsCard from './HackathonDetailsCard';
 import CertificationsCard from './CertificationsCard';
@@ -23,7 +25,19 @@ const ProfileContent: React.FC<ProfileContentProps> = ({ profile }) => {
       )}
       
       {profile.projects && profile.projects.length > 0 && (
-        <ProjectsCard projects={profile.projects} />
+        <div className="relative">
+          <ProjectsCard projects={profile.projects.slice(0, 2)} />
+          {profile.projects.length > 2 && (
+            <div className="flex justify-center mt-4">
+              <Link to="/projects">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Layers className="h-4 w-4" />
+                  View All Projects ({profile.projects.length})
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
       )}
       
       {profile.certifications && profile.certifications.length > 0 && (
