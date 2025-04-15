@@ -10,11 +10,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
-import { Award, GraduationCap, X, Plus, Code } from 'lucide-react';
-import { Certification, Achievement, ResearchPaper, HackathonDetail, Project } from '@/types';
+import { Award, GraduationCap, X, Plus } from 'lucide-react';
+import { Certification, Achievement, ResearchPaper, HackathonDetail } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import { convertDbDataToProfile, convertProfileToDbData } from '@/utils/profileUtils';
-import ProjectsManager from './Profile/components/ProjectsManager';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
@@ -36,7 +35,6 @@ const ProfileSetup = () => {
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [researchPapers, setResearchPapers] = useState<ResearchPaper[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingProfileImage, setExistingProfileImage] = useState<string | null>(null);
@@ -82,7 +80,6 @@ const ProfileSetup = () => {
           setCertifications(profileData.certifications || []);
           setAchievements(profileData.achievements || []);
           setResearchPapers(profileData.researchPapers || []);
-          setProjects(profileData.projects || []);
           setExistingProfileImage(profileData.profileImage || null);
         } else {
           // Initialize with empty values for new profile
@@ -90,7 +87,6 @@ const ProfileSetup = () => {
           setCertifications([{ id: uuidv4(), name: '', issuer: '', date: '' }]);
           setAchievements([{ id: uuidv4(), title: '', description: '' }]);
           setResearchPapers([{ id: uuidv4(), title: '', url: '' }]);
-          setProjects([]);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -284,7 +280,6 @@ const ProfileSetup = () => {
           certifications: validCertifications,
           achievements: validAchievements,
           researchPapers: validResearchPapers,
-          projects: projects,
           profileImage: profileImageUrl
         };
         
@@ -318,7 +313,7 @@ const ProfileSetup = () => {
             cgpa: cgpa,
             degree_completed: degreeCompleted,
             certifications: certifications.length,
-            extras: achievements.length + researchPapers.length + projects.length
+            extras: achievements.length + researchPapers.length
           }),
         });
 
@@ -477,20 +472,6 @@ const ProfileSetup = () => {
                     />
                   </div>
                 </div>
-              </div>
-
-              {/* Projects Section */}
-              <div className="border-t pt-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-medium flex items-center">
-                    <Code className="h-5 w-5 mr-2 text-skill-blue" />
-                    Projects (Optional)
-                  </h3>
-                </div>
-                <ProjectsManager 
-                  projects={projects} 
-                  onProjectsChange={setProjects} 
-                />
               </div>
 
               {/* Hackathon Details */}

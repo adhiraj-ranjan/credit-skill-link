@@ -1,29 +1,20 @@
-
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { StudentProfile } from '@/types';
 import PersonalInfoCard from './PersonalInfoCard';
 import HackathonDetailsCard from './HackathonDetailsCard';
 import CertificationsCard from './CertificationsCard';
 import AchievementsCard from './AchievementsCard';
 import ResearchPapersCard from './ResearchPapersCard';
-import ProjectsCard from './ProjectsCard';
 
 interface ProfileContentProps {
   profile: StudentProfile;
-  onDeleteProject?: (projectId: string) => void;
 }
 
-const ProfileContent: React.FC<ProfileContentProps> = ({ profile, onDeleteProject }) => {
+const ProfileContent: React.FC<ProfileContentProps> = ({ profile }) => {
   return (
     <div className="lg:col-span-2 space-y-6">
       <PersonalInfoCard profile={profile} />
-      
-      {profile.projects && profile.projects.length > 0 && (
-        <ProjectsCard 
-          projects={profile.projects}
-          onDelete={onDeleteProject}
-        />
-      )}
       
       {profile.hackathonDetails && profile.hackathonDetails.length > 0 && (
         <HackathonDetailsCard hackathonDetails={profile.hackathonDetails} />
