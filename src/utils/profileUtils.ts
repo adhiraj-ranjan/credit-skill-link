@@ -1,6 +1,6 @@
 
 import { Json } from '@/integrations/supabase/types';
-import { StudentProfile, HackathonDetail, Certification, Achievement, ResearchPaper } from '@/types';
+import { StudentProfile, HackathonDetail, Certification, Achievement, ResearchPaper, Project } from '@/types';
 
 /**
  * Safely convert Supabase JSON data to strongly typed arrays
@@ -42,7 +42,8 @@ export const convertDbDataToProfile = (data: any): StudentProfile => {
       certifications: [],
       achievements: [],
       researchPapers: [],
-      profileImage: ''
+      profileImage: '',
+      projects: []
     };
   }
   
@@ -61,7 +62,8 @@ export const convertDbDataToProfile = (data: any): StudentProfile => {
     certifications: convertJsonToTypedArray<Certification>(data.certifications),
     achievements: convertJsonToTypedArray<Achievement>(data.achievements),
     researchPapers: convertJsonToTypedArray<ResearchPaper>(data.research_papers),
-    profileImage: data.profile_image || ''
+    profileImage: data.profile_image || '',
+    projects: convertJsonToTypedArray<Project>(data.projects)
   };
 };
 
@@ -84,6 +86,7 @@ export const convertProfileToDbData = (profile: Partial<StudentProfile>) => {
     certifications: profile.certifications as unknown as Json,
     achievements: profile.achievements as unknown as Json,
     research_papers: profile.researchPapers as unknown as Json,
+    projects: profile.projects as unknown as Json,
     profile_image: profile.profileImage,
     updated_at: new Date().toISOString()
   };
