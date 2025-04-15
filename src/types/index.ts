@@ -16,6 +16,7 @@ export interface StudentProfile {
   researchPapers: ResearchPaper[];
   profileImage?: string;
   creditScore?: number;
+  projects?: Project[];
 }
 
 export interface Certification {
@@ -55,4 +56,17 @@ export interface CreditScoreResponse {
     research: number;
     extras: number;
   };
+}
+
+export interface Project {
+  id: string;
+  title: string;
+  description: string;
+  technologies: string[];
+  imageUrl?: string;
+  projectUrl?: string;
+  githubUrl?: string;
+  startDate: string;
+  endDate?: string;
+  ongoing: boolean;
 }

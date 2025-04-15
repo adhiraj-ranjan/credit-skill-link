@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { StudentProfile } from '@/types';
@@ -6,6 +7,7 @@ import HackathonDetailsCard from './HackathonDetailsCard';
 import CertificationsCard from './CertificationsCard';
 import AchievementsCard from './AchievementsCard';
 import ResearchPapersCard from './ResearchPapersCard';
+import ProjectsCard from './ProjectsCard';
 
 interface ProfileContentProps {
   profile: StudentProfile;
@@ -18,6 +20,10 @@ const ProfileContent: React.FC<ProfileContentProps> = ({ profile }) => {
       
       {profile.hackathonDetails && profile.hackathonDetails.length > 0 && (
         <HackathonDetailsCard hackathonDetails={profile.hackathonDetails} />
+      )}
+      
+      {profile.projects && profile.projects.length > 0 && (
+        <ProjectsCard projects={profile.projects} />
       )}
       
       {profile.certifications && profile.certifications.length > 0 && (
