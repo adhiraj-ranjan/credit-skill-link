@@ -11,10 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Award, GraduationCap, X, Plus } from 'lucide-react';
-import { Certification, Achievement, ResearchPaper, HackathonDetail, Project } from '@/types';
+import { Certification, Achievement, ResearchPaper, HackathonDetail } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import { convertDbDataToProfile, convertProfileToDbData } from '@/utils/profileUtils';
-import ProjectsSection from './Profile/components/ProjectsSection';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
@@ -39,9 +38,7 @@ const ProfileSetup = () => {
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingProfileImage, setExistingProfileImage] = useState<string | null>(null);
-  
-  const [projects, setProjects] = useState<Project[]>([]);
-  
+
   useEffect(() => {
     if (!user) {
       navigate('/login');
@@ -83,7 +80,6 @@ const ProfileSetup = () => {
           setCertifications(profileData.certifications || []);
           setAchievements(profileData.achievements || []);
           setResearchPapers(profileData.researchPapers || []);
-          setProjects(profileData.projects || []);
           setExistingProfileImage(profileData.profileImage || null);
         } else {
           // Initialize with empty values for new profile
@@ -91,17 +87,6 @@ const ProfileSetup = () => {
           setCertifications([{ id: uuidv4(), name: '', issuer: '', date: '' }]);
           setAchievements([{ id: uuidv4(), title: '', description: '' }]);
           setResearchPapers([{ id: uuidv4(), title: '', url: '' }]);
-          setProjects([{
-            id: uuidv4(),
-            title: '',
-            description: '',
-            technologies: [],
-            startDate: new Date().toISOString().split('T')[0],
-            ongoing: true,
-            imageUrl: '',
-            projectUrl: '',
-            githubUrl: ''
-          }]);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -110,8 +95,6 @@ const ProfileSetup = () => {
 
     fetchProfile();
   }, [user, navigate]);
-
-  // ... keep existing code (handle methods)
 
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -214,6 +197,16 @@ const ProfileSetup = () => {
     }
   };
 
+  const validateForm = () => {
+    // Required fields validation
+    if (!fullName || !collegeName || !course || !degree || !address) {
+      toast.error('Please fill in all required basic information fields.');
+      return false;
+    }
+    
+    return true;
+  };
+
   const filterEmptyItems = <T extends { id: string }>(items: T[]): T[] => {
     // Filter out items with no data
     return items.filter(item => {
@@ -266,7 +259,6 @@ const ProfileSetup = () => {
       const validAchievements = filterEmptyItems(achievements);
       const validResearchPapers = filterEmptyItems(researchPapers);
       const validHackathonDetails = filterEmptyItems(hackathonDetails) as HackathonDetail[];
-      const validProjects = filterEmptyItems(projects) as Project[];
       
       // Save profile details to Supabase
       if (user) {
@@ -288,7 +280,6 @@ const ProfileSetup = () => {
           certifications: validCertifications,
           achievements: validAchievements,
           researchPapers: validResearchPapers,
-          projects: validProjects,
           profileImage: profileImageUrl
         };
         
@@ -344,16 +335,6 @@ const ProfileSetup = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const validateForm = () => {
-    // Required fields validation
-    if (!fullName || !collegeName || !course || !degree || !address) {
-      toast.error('Please fill in all required basic information fields.');
-      return false;
-    }
-    
-    return true;
   };
 
   return (
@@ -568,12 +549,6 @@ const ProfileSetup = () => {
                 )}
               </div>
 
-              {/* Projects Section */}
-              <ProjectsSection 
-                projects={projects}
-                onChange={setProjects}
-              />
-              
               {/* Certifications (Optional) */}
               <div className="border-t pt-6">
                 <div className="flex justify-between items-center mb-4">
