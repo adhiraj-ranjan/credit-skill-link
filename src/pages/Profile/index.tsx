@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
+import { Briefcase } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { StudentProfile, CreditScoreResponse } from '@/types';
 import ProfileLayout from './components/ProfileLayout';
 import ProfileHeader from './components/ProfileHeader';
@@ -127,6 +129,16 @@ const Profile = () => {
         <ProfileContent profile={profile} />
         <ProfileSidebar creditScore={creditScore} />
       </div>
+
+      {/* Floating Action Button */}
+      <Button
+        onClick={() => navigate('/job-postings')}
+        className="fixed bottom-8 right-8 rounded-full shadow-lg hover:shadow-xl transition-shadow"
+        size="lg"
+      >
+        <Briefcase className="mr-2 h-5 w-5" />
+        View Jobs
+      </Button>
     </ProfileLayout>
   );
 };
