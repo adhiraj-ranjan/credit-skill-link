@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CalendarIcon, Code, ExternalLink, GitHub, Pencil, Trash2 } from 'lucide-react';
+import { CalendarIcon, Code, ExternalLink, Github, Pencil, Trash2 } from 'lucide-react';
 import { Project } from '@/types';
 
 interface ProjectCardProps {
@@ -95,7 +94,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onEdit, onDelete }) 
               asChild
             >
               <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                <GitHub className="h-3.5 w-3.5 mr-1.5" />
+                <Github className="h-3.5 w-3.5 mr-1.5" />
                 GitHub
               </a>
             </Button>

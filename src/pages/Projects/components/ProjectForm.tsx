@@ -95,10 +95,18 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSubmit, onCancel }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Pass the project data and imageFile separately
     onSubmit({
       ...formData,
-      imageFile: imageFile as any // Pass the file separately for upload
+      // Remove imageFile from being added to the Project object
     });
+    
+    // The parent component should handle the image file separately
+    if (imageFile) {
+      // Add the image file to the event object for the parent to access
+      (e as any).imageFile = imageFile;
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

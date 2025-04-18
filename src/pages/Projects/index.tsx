@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -123,10 +122,16 @@ const Projects = () => {
     try {
       const isEditing = !!selectedProject;
       let imageUrl = projectData.imageUrl;
+      let imageFile = null;
+      
+      // Get the image file from the form submission event
+      if ((event as any)?.imageFile) {
+        imageFile = (event as any).imageFile;
+      }
       
       // Handle image upload if there's a new image
-      if ((projectData as any).imageFile) {
-        const file = (projectData as any).imageFile;
+      if (imageFile) {
+        const file = imageFile;
         const fileName = `${user?.id}/${uuidv4()}-${file.name}`;
         
         const { data: uploadData, error: uploadError } = await supabase.storage
@@ -147,13 +152,11 @@ const Projects = () => {
         }
       }
       
-      // Update project data with new image URL and remove the file property
+      // Update project data with new image URL
       const projectToSave: Project = {
         ...projectData,
         imageUrl
       };
-      
-      delete (projectToSave as any).imageFile;
       
       let updatedProjects: Project[];
       
